@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Product Listing</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .search-container {
+      display: flex;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .product-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .product {
+      background: white;
+      border-radius: 8px;
+      padding: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .product img {
+      max-width: 100%;
+      height: 200px;
+      object-fit: contain;
+    }
+
+    .error {
+      color: red;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="Search products by name...">
+    <button onclick="searchProducts()">Search</button>
+  </div>
+
+  <div class="error" id="errorMsg"></div>
+
+  <div class="product-list" id="productList"></div>
+
+  <script>
+    // Load all products on page load
+    window.onload = () => {
+      fetchProducts('https://dummyjson.com/products');
+    };
+
+    // Fetch and display products
+    function fetchProducts(url) {
+      document.getElementById('errorMsg').innerText = '';
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          const list = document.getElementById('productList');
+          list.innerHTML = '';
+          data.products.forEach(product => {
+            const item = document.createElement('div');
+            item.className = 'product';
+            item.innerHTML = `
+              <img src="${product.thumbnail}" alt="${product.title}">
+              <h3>${product.title}</h3>
+              <p><strong>Brand:</strong> ${product.brand}</p>
+              <p><strong>Price:</strong> ₹${product.price}</p>
+            `;
+            list.appendChild(item);
+          });
+        })
+        .catch(error => {
+          document.getElementById('errorMsg').innerText = 'Error fetching products.';
+          console.error(error);
+        });
+    }
+
+    // Search functionality
+    function searchProducts() {
+      const input = document.getElementById('searchInput').value.trim();
+      if (!input) {
+        document.getElementById('errorMsg').innerText = 'Search field cannot be empty.';
+        return;
+      }
+      const url = `https://dummyjson.com/products/search?q=${encodeURIComponent(input)}`;
+      fetchProducts(url);
+    }
+  </script>
+
+</body>
+</html>
